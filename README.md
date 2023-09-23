@@ -156,7 +156,62 @@ If it is configured correctly you should get a json payload output like the one 
     "Arn": "arn:aws:iam::12345678910:user/terraform"
 }
 ```
+## Terraform Baiscs
 
+### Terraform Registry
+
+Terraform sources it's providers and modules from the Terraform Registry which  is located at [registry.terraform.io](https://registry.terraform.io/)
+ 
+- **Providers** is an interface to APIs that will allow you to create resources in terraform
+
+- **Modules** are a way to make large amount of terraform, reusuable on the go, portable and sharable.
+
+
+#### Terraform Init
+
+We run terraform init at the start of a new project to download the necessary binaries for the  terraform providers required by the project
+
+#### Terraform Plan
+
+`terraform plan`
+
+This will generate out a changeset about the state of our infrastructure and what will be changed. 
+
+A changeset is a file that basically says this is your current state and here is what will be changed according to your instructions
+
+We can output this changeset ie. "plan" to be passed to an apply, but often you canjust ignore outputting
+
+#### Terraform Apply
+
+`terraform apply`
+
+This will run a plan and pass the changeset to be executed by terraform. Apply should prompt 
+Yes or No.
+
+Use `terraform apply --auto-approve` to bypass the prompt
+
+### Terraform Lock Files
+
+`.terraform.lock.hcl` contains the locked versioning for the providers or modules 
+that will be used by the project
+
+The terraform Lock File **should be commited** to your version control system
+
+### Terraform State Files
+
+
+`.terraform.tfstate` contain information about the current state of your infrastructure.
+
+This file **should not be commited** to your VCS as it contains sensitive data.
+
+Losing this file means you won't know the state of your infrastructure 
+
+
+`.terraform.tfstate.backup` is the previous state file state
+
+### Terraform Directory
+
+`.terraform` directory contains binaries of terraform providers
 
 
 
