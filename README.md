@@ -190,6 +190,12 @@ Yes or No.
 
 Use `terraform apply --auto-approve` to bypass the prompt
 
+#### Terraform Destroy
+
+`terraform destroy`
+
+This will destroy all the resources mapped in the state file.
+
 ### Terraform Lock Files
 
 `.terraform.lock.hcl` contains the locked versioning for the providers or modules 
