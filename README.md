@@ -219,6 +219,36 @@ Losing this file means you won't know the state of your infrastructure
 
 `.terraform` directory contains binaries of terraform providers
 
+#### Issues with terraform cloud login and the gitpod workspace
 
+Running `terraform login` does not work as expected in the gitpod VSCODE browser, you won't be able to generate an auth token. it returns the error
 
+```sh
+│ Error: Failed to retrieve token: interrupted
+```
 
+To solve this you have to manually generate the token here:
+
+[Generate Token](https://app.terraform.io/app/settings/tokens?source=terraform-login)
+
+Then create this file to store the token in the following directory:
+
+`touch /home/gitpod/.terraform.d/credentials.tfrc.json`
+
+Open the file created above
+
+`open /home/gitpod/.terraform.d/credentials.tfrc.json`
+
+Paste the following code inside the file, replace "YOUR_API_TOKEN" with the token you generated
+
+```json
+{
+  "credentials": {
+    "app.terraform.io": {
+      "token": "YOUR_API_TOKEN"
+    }
+  }
+}
+```
+
+Then Run `terraform init` and `terraform login` to successfully migrate your state file to Terraform cloud
