@@ -2,6 +2,7 @@
 
 ## Semantic Versioning
 This Project will utilize semantic versioning for it's tagging
+
 [semver.org](https://semver.org/)
 
 The General Format:
