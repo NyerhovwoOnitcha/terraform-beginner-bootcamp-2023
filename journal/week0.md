@@ -11,8 +11,8 @@
     + [You can also just use the `export` command to set the env var in the current terminal](#you-can-also-just-use-the--export--command-to-set-the-env-var-in-the-current-terminal)
   * [Printing Env Vars](#printing-env-vars)
   * [Scoping of Env Vars](#scoping-of-env-vars)
-    + [Persisting Env Vars in Gitpod](#persisting-env-vars-in-gitpod)
-  * [AWS CLI Installation](#aws-cli-installation)
+  * [Persisting Env Vars in Gitpod](#persisting-env-vars-in-gitpod)
+- [AWS CLI Installation](#aws-cli-installation)
 - [Terraform Baiscs](#terraform-baiscs)
   * [Terraform Registry](#terraform-registry)
     + [Terraform Init](#terraform-init)
@@ -22,8 +22,8 @@
   * [Terraform Lock Files](#terraform-lock-files)
   * [Terraform State Files](#terraform-state-files)
   * [Terraform Directory](#terraform-directory)
-    + [Issues with terraform cloud login and the gitpod workspace](#issues-with-terraform-cloud-login-and-the-gitpod-workspace)
-    + [Bash Script to SET alias tf='terraform'](#bash-script-to-set-alias-tf--terraform-)
+  * [Issues with terraform cloud login and the gitpod workspace](#issues-with-terraform-cloud-login-and-the-gitpod-workspace)
+  * [Bash Script to SET alias tf='terraform'](#bash-script-to-set-alias-tf--terraform-)
 
 
 
