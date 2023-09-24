@@ -252,3 +252,5 @@ Paste the following code inside the file, replace "YOUR_API_TOKEN" with the toke
 ```
 
 Then Run `terraform init` and `terraform login` to successfully migrate your state file to Terraform cloud
+
+The process above has been automated using a bash script [generate_tfrc_credentials](./bin/generate_tfrc_credentials)
