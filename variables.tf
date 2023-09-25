@@ -7,3 +7,8 @@ variable "user_uuid" {
     error_message = "The user_uuid must be in the format of a UUID"
   }
 }
+
+variable "bucket_name" {
+  type        = string
+ 
+}

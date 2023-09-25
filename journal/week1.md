@@ -74,3 +74,23 @@ The order of precedence which Terraform loads variables is in the following orde
 - The terraform.tfvars.json file, if present.
 - The terraform.tfvars file, if present.
 - Environment variables
+
+## Dealing with Configuration Drifts
+
+### Terraform State file 
+
+Explore the state file and looked at a scenario where your state file is deleted. The command
+`terraform state list` lists all the resources currently in the state file
+
+## Terraform Imports
+
+[terraform import](https://developer.hashicorp.com/terraform/cli/import)
+
+This is one of the ways to deal with a scenario where the state file is deleted or the case of missing resources.
+You can fix missing resources with terraform import
+
+```sh
+terraform import aws_s3_bucket.bucket bucket-name
+```
+
+Terraform import doesn't work for all cloud resources so you need to check the providers documentation to see which resource supports import
