@@ -94,3 +94,63 @@ terraform import aws_s3_bucket.bucket bucket-name
 ```
 
 Terraform import doesn't work for all cloud resources so you need to check the providers documentation to see which resource supports import
+
+## Terraform Module Structure
+
+[Module](https://developer.hashicorp.com/terraform/language/modules/develop/structure)
+
+It's recommended to place modules in a `module` directory when locally developing modules.
+
+A terraform module usually looks like this"
+
+```sh
+tree module/
+
+├── README.md
+├── main.tf
+├── variables.tf
+├── outputs.tf
+```
+
+### Module Sources and Passing Input Variables
+
+We created a module and moved all the configurations to the module, How do we reference this module on the top level? you import the module i.e sourcing the module on the top-level main.tf
+
+You can pass in input variables when you import the module, but these variables should already be defined in the module i.e in the module's variable.tf file
+
+Using the `source` we can import the module from various places e.g
+- Locally
+- Github
+- Terraform registry
+
+The example below soucres the module locally
+
+```
+module "terrahouse_aws" {
+    source = "./modules/terrahouse_aws"
+    user_uuid = var.user_uuid
+    bucket_name = var.bucket_name
+ }
+```
+
+### Nested Module
+What we have achieved is a nested Module, a module nested within a project, that is why to access the variables in the nested module we had to reference it from the top level's variable.tf file even though the variables are already defined in the module's variables.tf file
+
+The same with outputs, you reference the outputs defined in the nested module's output.tf file at the top level outputs.tf. Kinda like duplicating it
+
+#### Below are examples of both files:
+
+-  nested module's variable.tf file:
+```t
+output "bucket_name" {
+    value = aws_s3_bucket.website_bucket.bucket
+}
+```
+
+- top level outputs.tf file
+
+```t
+output "bucket_name" {
+    value = module.terrahouse_aws.bucket_name
+}
+```
