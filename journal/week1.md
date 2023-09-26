@@ -123,7 +123,7 @@ Using the `source` we can import the module from various places e.g
 - Github
 - Terraform registry
 
-The example below soucres the module locally
+The example below soucres the module locally in the top level main.tf file
 
 ```
 module "terrahouse_aws" {
@@ -153,4 +153,74 @@ output "bucket_name" {
 output "bucket_name" {
     value = module.terrahouse_aws.bucket_name
 }
+```
+
+## Working with files in Terraform
+
+### Special Path Variable
+
+There is a special variable in terraform called `path` that allows us to reference path:
+- path.module : Get path to the current module
+- path.root : Get the path of the root module/root of the project
+[special path variable](https://developer.hashicorp.com/terraform/language/expressions/references)
+
+An example of how the `path.root` is used below, it's a terraform configuration to upload an index.html file to a s3 bucket, the `path.root module` is used to specify thw relative path of the index.html file 
+
+```
+# Upload index.html file to bucket above
+
+resource "aws_s3_object" "object" {
+  bucket = aws_s3_bucket.website_bucket.bucket
+  key    = "index.html" 
+  source = "${path.root}/public/index.html"
+  etag = filemd5("${path.root}/public/index.html")
+}
+```
+
+Another way to achieve this is to set the path as a variable.
+- You declare the variable in the variable.tf file of the nested module
+- You declare the variable in the top-level variable.tf file
+- You define the variable in the vairable.tfvars file
+- You call the variable when you are importing/sourcing the module in the top-level main.tf file
+
+```
+resource "aws_s3_object" "index_html" {
+  bucket = aws_s3_bucket.website_bucket.bucket
+  key    = "index.html" 
+  source = var.index_html_filepath
+  
+  etag = filemd5(var.index_html_filepath)
+}
+```
+
+### filemd function
+
+filemd is a variant of md5 that hashes the content of a given file rather than a literal string. An example is the `etag` seen below that turns the contents of the index.html file into a hash. If the file is edited and you run `terraform apply` terraform would then be recreate the resource, if you take out the etag in the resource above, it won't matter the number of times you edit the contents of the index.html file,  terraform won't pick it up and recreate the resource as it's state file merely checks for the existence of the resource.
+
+```
+resource "aws_s3_object" "index_html" {
+  bucket = aws_s3_bucket.website_bucket.bucket
+  key    = "index.html" 
+  source = var.index_html_filepath
+  
+  etag = filemd5(var.index_html_filepath)
+}
+```
+
+### Fileexists function
+
+https://developer.hashicorp.com/terraform/language/functions/fileexists
+
+This is a built-in terraform function to check the existence of a file. An example is checking the existence of the index.html file to be uploaded to the s3 bucket.
+
+```
+variable "index_html_filepath" {
+  type        = string
+  
+  validation {
+    condition     = fileexists(var.index_html_filepath)
+    error_message = "The specified index.html file path is not valid"
+  }
+}
+
 ```

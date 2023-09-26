@@ -12,3 +12,21 @@ variable "bucket_name" {
   type        = string
  
 }
+
+variable "index_html_filepath" {
+  type        = string
+  
+  validation {
+    condition     = fileexists(var.index_html_filepath)
+    error_message = "The specified index.html file path is not valid"
+  }
+}
+
+variable "error_html_filepath" {
+  type        = string
+  
+  validation {
+    condition     = fileexists(var.error_html_filepath)
+    error_message = "The specified index.html file path is not valid"
+  }
+}
