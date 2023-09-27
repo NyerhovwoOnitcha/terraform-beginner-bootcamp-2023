@@ -30,3 +30,13 @@ variable "error_html_filepath" {
     error_message = "The specified index.html file path is not valid"
   }
 }
+
+variable "content_version" {
+  type        = number
+ 
+
+  validation {
+    condition     = var.content_version > 0 && can(regex("^\\d+$", tostring(var.content_version)))
+    error_message = "The content version must be a positive integer"
+  }
+}

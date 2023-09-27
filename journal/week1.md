@@ -162,6 +162,7 @@ output "bucket_name" {
 There is a special variable in terraform called `path` that allows us to reference path:
 - path.module : Get path to the current module
 - path.root : Get the path of the root module/root of the project
+
 [special path variable](https://developer.hashicorp.com/terraform/language/expressions/references)
 
 An example of how the `path.root` is used below, it's a terraform configuration to upload an index.html file to a s3 bucket, the `path.root module` is used to specify thw relative path of the index.html file 
@@ -224,3 +225,123 @@ variable "index_html_filepath" {
 }
 
 ```
+
+## Local Values
+
+A local value assigns a name to an expression, so you can use the name multiple times within a module instead of repeating the expression.
+They are alsp useful when we need to transform data into another format and have it referenced as a variable
+[Local Values](https://developer.hashicorp.com/terraform/language/values/locals)
+
+```tf
+locals {
+  s3_origin_id = "myS3Origin"
+}
+
+```
+
+## Terraform Datasources
+
+This allows us to source data from cloud resources. This is useful when we want to reference cloud resources without importing them
+
+```
+data "aws_caller_identity" "current" {}
+
+output "account_id" {
+  value = data.aws_caller_identity.current.account_id
+}
+```
+[Data Sources](https://developer.hashicorp.com/terraform/language/data-sources)
+
+## Lifecycle
+
+This controls when a resource gets created, destroyed and updated, in the example below we used the argument `ignore_changes` and gave the value `etag`. Thus whereas before any change to our index.html document is detected by the etag and an update of the document is triggered when we run `terraform apply`, this will not be the case as we added the `lifecycle` command and set the `ignore_changes` argument to `etag`
+
+```
+resource "aws_s3_object" "index_html" {
+  bucket = aws_s3_bucket.website_bucket.bucket
+  key    = "index.html" 
+  source = var.index_html_filepath
+  content_type = "text/html"
+  
+  etag = filemd5(var.index_html_filepath)
+  lifecycle {
+    ignore_changes = [ etag ]
+  }
+}
+
+```
+
+[Lifecycel](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle)
+
+## Terraform Data
+
+[Terrafrom data](https://developer.hashicorp.com/terraform/language/resources/terraform-data)
+
+
+Plain data values such as Local Values and Input Variables don't have any side-effects to plan against and so they aren't valid in replace_triggered_by. You can use terraform_data's behavior of planning an action each time input changes to indirectly use a plain value to trigger replacement. A scenario is explained below where the `terraform data` is used to trigger changes to resources :
+
+- Create the resource `terraform_data` with `input = content_version`
+
+```
+resource "terraform_data" "content_version" {
+  input = var.content_version
+}
+```
+
+- Define a variable called content_version in your terraform.tfvars
+```
+content_version =1
+```
+
+- Declare the variable `content_version` in both the modules' `variable.tf` file and the top level `variable.tf` file as shown respectively below
+
+```
+variable "content_version" {
+  type        = number
+ 
+
+  validation {
+    condition     = var.content_version > 0 && can(regex("^\\d+$", tostring(var.content_version)))
+    error_message = "The content version must be a positive integer"
+  }
+}
+```
+
+```
+variable "content_version" {
+  type        = number
+}
+```
+
+- Reference the variable when importing the module in the Top level `main.tf` file
+
+```
+module "terrahouse_aws" {
+    source = "./modules/terrahouse_aws"
+    user_uuid = var.user_uuid
+    bucket_name = var.bucket_name
+    index_html_filepath= var.index_html_filepath 
+    error_html_filepath= var.error_html_filepath
+    content_version = var.content_version
+}
+```
+- Update the Resource configuration where `terraform_data` will be used to trigger changes
+
+```
+resource "aws_s3_object" "index_html" {
+  bucket = aws_s3_bucket.website_bucket.bucket
+  key    = "index.html" 
+  source = var.index_html_filepath
+  content_type = "text/html"
+  
+  etag = filemd5(var.index_html_filepath)
+  lifecycle {
+    replace_triggered_by = [terraform_data.content_version.output] 
+    ignore_changes = [ etag ]
+  }
+}
+```
+With the confifuration above, changes to the index.html file will not be triggered when you run `terraform apply`, only when you update the `content_version= 2` or a higher number in the `terraform.tfvars` file will terraform update the changes 
+
+
+
