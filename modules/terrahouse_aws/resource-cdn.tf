@@ -92,6 +92,17 @@ resource "aws_s3_bucket_policy" "bucket_policy_for_cloudfront" {
   })
 }
 
-resource "terraform_data" "content_version" {
-  input = var.content_version
+# https://developer.hashicorp.com/terraform/language/expressions/strings
+
+resource "terraform_data" "invalidate_cache" {
+  triggers_replace = terraform_data.content_version.output
+
+  provisioner "local-exec" {
+    command = <<EOT
+aws cloudfront create-invalidation \
+--distribution-id ${aws_cloudfront_distribution.s3_distribution} \
+--paths '/*'
+	  EOT
+  }
 }
+ 

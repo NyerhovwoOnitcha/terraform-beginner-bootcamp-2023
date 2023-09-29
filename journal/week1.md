@@ -343,5 +343,53 @@ resource "aws_s3_object" "index_html" {
 ```
 With the confifuration above, changes to the index.html file will not be triggered when you run `terraform apply`, only when you update the `content_version= 2` or a higher number in the `terraform.tfvars` file will terraform update the changes 
 
+## Provisioners
 
+[Provisioners](https://developer.hashicorp.com/terraform/language/resources/provisioners/syntax)
 
+Provisioners allow you to execute commands on compute instances, say you want to do something like `invalidate cache`, terraform doesn't have a particular provision for this, a workaround is to find a way to execute the command locally on your server to invalidate cache or remotely. Provisioners allow you to do this, they allow you execute commands on your `AWS CLI`.
+
+Hashicopr does not recommend you do this, config management tools liks ansible takes care of thid quite easily.
+
+Provisioners can be placed inside a resource so they happen as part of the resource. e.g below:
+
+```tf
+resource "aws_cloudfront_distribution" "s3_distribution" {
+  # 
+
+  provisioner "local-exec" {
+    command = "aws cloudfront create-invalidation --distribution-id ${self.id} --paths '...'"
+  }
+}
+
+```
+But in our case we want the provisioner to be triggered by something else i.e by a trigger in change in the `content_version`
+
+```tf
+resource "terraform_data" "invalidate_cache" {
+  triggers_replace = terraform.data.content_version.output
+
+  provisioner "local-exec" {
+    command << EOT
+"aws cloudfront create-invalidation \
+--distribution-id ${self.id} \
+--paths '...'"
+	EOT
+  }
+}
+
+```
+
+### Local_exec
+
+This will execute the commands locally on the machine running the terraform commands e.g  `terraform plan, terrform apply`
+
+### Remote_exec
+
+This will execute the commands on a server that you target, you will need to provide credentials to access the server though e.g ssh
+
+### File Provisioner
+
+[file provisioner](https://developer.hashicorp.com/terraform/language/resources/provisioners/file)
+
+The file provisioner copies files or directories from the machine running Terraform to the newly created resource. The file provisioner supports both ssh and winrm type connections.
