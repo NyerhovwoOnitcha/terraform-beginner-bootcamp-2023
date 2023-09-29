@@ -7,6 +7,10 @@ terraform {
   }
 }
 
+locals {
+  files = fileset("${path.root}/public/assets", "*")
+}
+
 # Create s3 Bucket
 resource "aws_s3_bucket" "website_bucket" {
   bucket = var.bucket_name
@@ -63,3 +67,37 @@ data "aws_caller_identity" "current" {}
 resource "terraform_data" "content_version" {
   input = var.content_version
 }
+
+
+
+
+resource "aws_s3_object" "Upload_using_for_each" {
+  for_each = local.files
+
+  bucket = aws_s3_bucket.website_bucket.id
+  key    = each.value
+  source = "${path.root}/public/assets/${each.value}"
+
+  etag = filemd5("${path.root}/public/assets/${each.value}")
+  lifecycle {
+    replace_triggered_by = [terraform_data.content_version.output] 
+    ignore_changes = [ etag ]
+  }
+}
+
+# ANOTHER WAY TO DO THIS IS BELOW:
+# Here you don't need to set the local variable setting the file path, you just give the file path directly
+# resource "aws_s3_object" "Upload_using_for_each" {
+#   for_each = fileset("${path.root}/public/assets", "*.{jpg,png,gif}") or
+#   #for_each = fileset("${path.root}/public/assets", "*") or
+    #for_each = fileset("var.assets_path", "*")
+
+#   # bucket = aws_s3_bucket.website_bucket.id
+#   # key    = "assets/${each.key}"
+#   # source = "${var.assets_path}/${each.key}"
+#   # etag = filemd5("${var.assets_path/${each.key}")
+#   # lifecycle {
+#   #   replace_triggered_by = [terraform_data.content_version.output] 
+#   #   ignore_changes = [ etag ]
+#   # }
+# }

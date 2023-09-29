@@ -393,3 +393,61 @@ This will execute the commands on a server that you target, you will need to pro
 [file provisioner](https://developer.hashicorp.com/terraform/language/resources/provisioners/file)
 
 The file provisioner copies files or directories from the machine running Terraform to the newly created resource. The file provisioner supports both ssh and winrm type connections.
+
+## For each Expressions
+
+[For each](https://developer.hashicorp.com/terraform/language/meta-arguments/for_each)
+
+Allows us enumerate over complex data types. The `for each` is very useful when you want to create multiples of a terraform resource. Example is seen below where we want to upload multiple files to our s3 bucket. 
+
+The first block of code is the skeleton while the 2nd block is our code that uploads multiple files 
+
+#### Skeleton
+```tf
+resource "aws_s3_bucket" "example_bucket" {
+  bucket = "example-bucket"
+  acl    = "private"
+}
+
+locals {
+  files = fileset("path/to/files", "*")
+}
+
+resource "aws_s3_bucket_object" "example_object" {
+  for_each = local.files
+
+  bucket = aws_s3_bucket.example_bucket.id
+  key    = each.value
+  source = "path/to/files/${each.value}"
+}
+
+```
+#### Our code
+```tf
+locals {
+  files = fileset("${path.root}/public/assets", "*")
+}
+
+
+
+resource "aws_s3_object" "Upload_using_for_each" {
+  for_each = local.files
+
+  bucket = aws_s3_bucket.website_bucket.id
+  key    = each.value
+  source = "${path.root}/public/assets/${each.value}"
+
+  etag = filemd5("${path.root}/public/assets/${each.value}")
+  lifecycle {
+    replace_triggered_by = [terraform_data.content_version.output] 
+    ignore_changes = [ etag ]
+  }
+}
+```
+
+#### Pro-Tip
+You can set a variable for the assets path (check out how we did same for the variable `content_version` in line 291), check the commented out code in the module's resource-storage.tf file to see how the variable is referenced:
+
+```sh
+assets_path= "/workspace/terraform-beginner-bootcamp-2023/public/assets/"
+```
