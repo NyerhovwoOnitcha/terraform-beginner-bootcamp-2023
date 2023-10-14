@@ -1,7 +1,6 @@
 tasks:
   - name: terraform
     before: |
-      cd $PROJECT_ROOT
       source ./bin/install_terraform_cli
       source ./bin/generate_tfrc_credentials
       source ./bin/set_tf_alias
@@ -10,23 +9,8 @@ tasks:
     env:
       AWS_CLI_AUTO_PROMPT: on-partial
     before: |
-      source ./bin/set_tf_alias
       source ./bin/install_aws_cli
-
-  - name: sinatra
-    before: |
-      cd $PROJECT_ROOT
-      cd terratowns_mock_server
-      bundle install
-      bundle exec ruby server.rb 
-
-  - name: http-server
-    before: |
-      npm install --global http-server
-    command: 
-      http-server
-
-
+      source ./bin/set_tf_alias
 vscode:
   extensions:
     - amazonwebservices.aws-toolkit-vscode
