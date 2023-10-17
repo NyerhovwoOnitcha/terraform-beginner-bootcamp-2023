@@ -57,3 +57,18 @@ All of the code for our server is stored in the `server.rb` file
 ## CRUD
 
 Terraform Provider resources utilizes CRUD i.e Create, Read, Update and Delete
+
+## Set Environment Variables in terraform
+
+In terraform you can set environment variable by prefixing the name with `TF_VAR` The syntax generally is:
+
+
+```tf
+export TF_VAR_variable_name = "value"
+```
+
+e.g when setting our access token as an env variable to avoid hardcoding it:
+
+```tf
+export TF_VAR_terratowns_access_token = "3t2878647248230-23"
+```
