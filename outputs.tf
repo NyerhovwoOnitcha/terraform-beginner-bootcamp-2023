@@ -14,16 +14,16 @@
 
 
 
-### This outputs the bucket name only, it's an attribute os the s3 resource
-# output "bucket_name" {
-#     value = module.terrahouse_aws.bucket_name
-# }
+## This outputs the bucket name only, it's an attribute os the s3 resource
+output "bucket_name" {
+    value = module.terrahouse_aws.bucket_name
+}
 
-# output "website_endpoint" {
-#     value = module.terrahouse_aws.s3_website_endpoint
-# }
+output "website_endpoint" {
+    value = module.terrahouse_aws.s3_website_endpoint
+}
 
-# output "cloudfront_url" {
-#     description = "Cloudfront Distribution Domain Name"
-#     value = module.terrahouse_aws.cloudfront_url
-# } 
+output "cloudfront_url" {
+    description = "Cloudfront Distribution Domain Name"
+    value = module.terrahouse_aws.cloudfront_url
+} 
